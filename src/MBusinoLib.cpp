@@ -333,6 +333,10 @@ uint8_t MBusinoLib::decode(uint8_t *buffer, uint8_t size, JsonArray& root) {
         else if(vifarray[extensionsCounter] == 0xFC || vifarray[extensionsCounter] == 0xFF){
           uint8_t vifExtensionBuffer = vifarray[extensionsCounter+1] & 0x7F;
           switch(vifExtensionBuffer){  
+            case 0:
+              strcpy(stringNameExtension, "_total");
+              extensionsCounter++;  
+              break;
             case 1:
               strcpy(stringNameExtension, "_L1");
               extensionsCounter++;  
