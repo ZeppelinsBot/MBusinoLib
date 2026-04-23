@@ -3,7 +3,12 @@
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-Fix conditional check for VIFs in case of timestamps
+## [0.9.18] - 2026-04-23
+
+### Added
+
+- New `decodeHeaderLong()` method: decodes M-Bus Long Frame header (ID, manufacturer, medium, status byte, version, access counter, signature) into a JSON object
+- Example updated to demonstrate header decoding
 
 ## [0.9.17] - 2026-03-21
 
