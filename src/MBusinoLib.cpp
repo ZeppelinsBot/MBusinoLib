@@ -1492,3 +1492,111 @@ uint32_t MBusinoLib::_getVIF(uint8_t code, int8_t scalar) {
   return 0xFF; // this is not a valid VIF
 
 }
+
+/**
+ * @brief Decodes the M-Bus Long Frame Header into a JSON object
+ * @param buffer Pointer to the raw data array (complete telegram)
+ * @param length Total length of the buffer
+ * @param json ArduinoJson object where decoded fields are written
+ * @return true if decoding is successful, false on error
+ */
+bool MBusinoLib::decodeHeaderLong(const uint8_t* buffer, size_t length, JsonObject& json) {
+    // 1. Sanity check: Minimum length for a long frame with fixed data header
+    // (Start68 + Len + Len + Start68 + C + A + CI + 4xId + 2xManuf + Ver + Med + Acc + Stat + Sig)
+    if (length < 19) {
+        return false; 
+    }
+
+    // 2. Verify start bytes
+    if (buffer[0] != 0x68 || buffer[3] != 0x68) {
+        return false;
+    }
+
+    // 3. Verify length fields
+    if (buffer[1] != buffer[2]) {
+        return false; // Lengths do not match
+    }
+
+    // Extract basic header fields
+    json["len"] = buffer[1];
+    json["c_field"] = buffer[4];
+    json["a_field"] = buffer[5];
+    json["ci_field"] = buffer[6];
+
+    // Check if the CI field indicates a variable data structure (0x72 or 0x76)
+    // and thus contains the Fixed Data Header
+    if (buffer[6] == 0x72 || buffer[6] == 0x76) {
+        
+        // 4. Identification Number (4 Byte BCD, LSB first)
+        char id_str[9];
+        snprintf(id_str, sizeof(id_str), "%02X%02X%02X%02X", 
+                 buffer[10], buffer[9], buffer[8], buffer[7]);
+        json["id"] = id_str;
+
+        // 5. Manufacturer Code (2 Byte, LSB first -> buffer[11] is low byte, buffer[12] is high byte)
+        uint16_t manuf_code = (buffer[12] << 8) | buffer[11];
+        char manuf[4];
+        manuf[0] = ((manuf_code >> 10) & 0x001F) + 64;
+        manuf[1] = ((manuf_code >> 5) & 0x001F) + 64;
+        manuf[2] = (manuf_code & 0x001F) + 64;
+        manuf[3] = '\0';
+        json["manufacturer"] = manuf;
+
+        // 6. Version (1 Byte)
+        json["version"] = buffer[13];
+
+        // 7. Medium (1 Byte) & Medium Plain Text
+        uint8_t medium = buffer[14];
+        json["medium_code"] = medium;
+        
+        switch (medium) {
+            case 0x01: json["medium"] = "Oil"; break;
+            case 0x02: json["medium"] = "Electricity"; break;
+            case 0x03: json["medium"] = "Gas"; break;
+            case 0x04: json["medium"] = "Heat"; break;
+            case 0x05: json["medium"] = "Steam"; break;
+            case 0x06: json["medium"] = "Warm Water"; break;
+            case 0x07: json["medium"] = "Water"; break;
+            case 0x08: json["medium"] = "Heat Cost Allocator"; break;
+            case 0x09: json["medium"] = "Compressed Air"; break;
+            case 0x0A: json["medium"] = "Cooling load meter (Volume)"; break;
+            case 0x0B: json["medium"] = "Cooling load meter (Mass)"; break;
+            case 0x0C: json["medium"] = "Heat (Volume)"; break;
+            case 0x0D: json["medium"] = "Heat (Mass)"; break; // Match for your example telegram
+            case 0x0E: json["medium"] = "Combined Heat/Cooling"; break;
+            case 0x0F: json["medium"] = "Bus/System component"; break;
+            case 0x14: json["medium"] = "Calorific value"; break;
+            case 0x15: json["medium"] = "Hot water"; break;
+            case 0x16: json["medium"] = "Cold water"; break;
+            case 0x17: json["medium"] = "Dual water"; break;
+            case 0x37: json["medium"] = "Radio converter"; break;
+            default:   json["medium"] = "Unknown"; break;
+        }
+
+        // 8. Access Counter (1 Byte)
+        json["access_counter"] = buffer[15];
+
+        // 9. Status Byte (1 Byte)
+        json["status"] = buffer[16];
+
+        // Detailed breakdown of the status bits
+        JsonObject statusObj = json.createNestedObject("status_details");
+        statusObj["battery_low"] = (buffer[16] & 0x04) ? true : false;
+        statusObj["permanent_error"] = (buffer[16] & 0x08) ? true : false;
+        statusObj["temporary_error"] = (buffer[16] & 0x10) ? true : false;
+        
+        uint8_t app_error = buffer[16] & 0x03;
+        if (app_error == 0x00) statusObj["app_status"] = "no_error";
+        else if (app_error == 0x01) statusObj["app_status"] = "busy";
+        else if (app_error == 0x02) statusObj["app_status"] = "any_error";
+
+        // 10. Signature (2 Bytes, LSB first)
+        uint16_t signature = (buffer[18] << 8) | buffer[17];
+        json["signature"] = signature;
+        
+        return true;
+    }
+
+    return false; // Not a standard RSP_UD fixed header
+}
+

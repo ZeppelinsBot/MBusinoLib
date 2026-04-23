@@ -377,6 +377,9 @@ public:
   const char * getCodeUnits(uint8_t code);
   const char * getDeviceClass(uint8_t code);
   const char * getStateClass(uint8_t code);
+
+  bool decodeHeaderLong(const uint8_t* buffer, size_t length, JsonObject& json);
+
   
 protected:
 
