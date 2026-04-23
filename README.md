@@ -130,7 +130,7 @@ if (payload.decodeHeaderLong(mbus_data, packet_size, headerObj)) {
 }
 ```
 
-Example JSON output:
+Example JSON output (from a Cold water meter):
 
 ```
 {
@@ -138,20 +138,20 @@ Example JSON output:
   "c_field": 8,
   "a_field": 20,
   "ci_field": 114,
-  "id": "24337907",
-  "manufacturer": "NWM",
+  "id": "29079172",
+  "manufacturer": "WZG",
   "version": 3,
-  "medium": "Heat (Mass)",
-  "medium_code": 13,
-  "access_counter": 2,
-  "status": 198,
+  "medium_code": 22,
+  "medium": "Cold water",
+  "access_counter": 194,
+  "status": 0,
   "status_details": {
     "battery_low": false,
     "permanent_error": false,
-    "temporary_error": true,
-    "app_status": "any_error"
+    "temporary_error": false,
+    "app_status": "no_error"
   },
-  "signature": 14115
+  "signature": 0
 }
 ```
 
