@@ -26,7 +26,7 @@ Thanks to **HWHardsoft** and **TrystanLea** for the M-Bus communication for MBus
 
 ### Class: `MBusinoLib`
 
-Include and instantiate the MBusinoLib class. The constructor takes the size of the allocated buffer.
+Include and instantiate the MBusinoLib class:
 
 ```c
 #include <MBusinoLib.h>
