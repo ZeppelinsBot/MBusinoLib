@@ -31,10 +31,8 @@ Include and instantiate the MBusinoLib class. The constructor takes the size of 
 ```c
 #include <MBusinoLib.h>
 
-MBusinoLib payload(uint8_t size);
+MBusinoLib decode;
 ```
-
-- `uint8_t size`: The maximum payload size to send, e.g. `254`
 
 ## Decoding
 
@@ -48,7 +46,7 @@ uint8_t decodeRecords(uint8_t *buffer, uint8_t size, JsonArray& root);
 
 same line from the example
 ```c
-uint8_t fields = payload.decodeRecords(&mbus_data[Startadd], packet_size - Startadd - 2, root); 
+uint8_t fields = decode.decodeRecords(&mbus_data[Startadd], packet_size - Startadd - 2, root); 
 ```
 
 Example JSON output:
@@ -108,14 +106,14 @@ bool decodeHeader(const uint8_t* buffer, size_t length, JsonObject& json);
 
 Usage example:
 ```c
-MBusinoLib payload(254);
+MBusinoLib decode;
 
 StaticJsonDocument<512> headerDoc;
 JsonObject headerObj = headerDoc.to<JsonObject>();
 
 int packet_size = mbus_data[1] + 6;
 
-if (payload.decodeHeader(mbus_data, packet_size, headerObj)) {
+if (decode.decodeHeader(mbus_data, packet_size, headerObj)) {
     const char* meterId = headerObj["id"].as<const char*>();
     const char* manufacturer = headerObj["manufacturer"].as<const char*>();
     const char* medium = headerObj["medium"].as<const char*>();
