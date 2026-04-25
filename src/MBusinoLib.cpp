@@ -59,7 +59,7 @@ uint8_t MBusinoLib::getError() {
 
 // ----------------------------------------------------------------------------
 
-uint8_t MBusinoLib::decode(uint8_t *buffer, uint8_t size, JsonArray& root) {
+uint8_t MBusinoLib::decodeRecords(uint8_t *buffer, uint8_t size, JsonArray& root) {
 
     uint8_t count = 0;
     uint8_t index = 0;
@@ -1500,7 +1500,7 @@ uint32_t MBusinoLib::_getVIF(uint8_t code, int8_t scalar) {
  * @param json ArduinoJson object where decoded fields are written
  * @return true if decoding is successful, false on error
  */
-bool MBusinoLib::decodeHeaderLong(const uint8_t* buffer, size_t length, JsonObject& json) {
+bool MBusinoLib::decodeHeader(const uint8_t* buffer, size_t length, JsonObject& json) {
     // 1. Sanity check: Minimum length for a long frame with fixed data header
     // (Start68 + Len + Len + Start68 + C + A + CI + 4xId + 2xManuf + Ver + Med + Acc + Stat + Sig)
     if (length < 19) {

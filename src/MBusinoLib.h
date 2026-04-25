@@ -372,13 +372,19 @@ public:
   uint8_t copy(uint8_t * buffer);
   uint8_t getError();
   
-  uint8_t decode(uint8_t *buffer, uint8_t size, JsonArray& root);
+  uint8_t decodeRecords(uint8_t *buffer, uint8_t size, JsonArray& root);
+
+  [[deprecated("use decodeRecords()")]] 
+  inline uint8_t decode(uint8_t *buffer, uint8_t size, JsonArray& root) {
+    return decodeRecords(buffer, size, root);
+  }
+
   const char * getCodeName(uint8_t code);
   const char * getCodeUnits(uint8_t code);
   const char * getDeviceClass(uint8_t code);
   const char * getStateClass(uint8_t code);
 
-  bool decodeHeaderLong(const uint8_t* buffer, size_t length, JsonObject& json);
+  bool decodeHeader(const uint8_t* buffer, size_t length, JsonObject& json);
 
   
 protected:
