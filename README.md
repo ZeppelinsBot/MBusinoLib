@@ -1,6 +1,6 @@
 # MBusinoLib - an Arduino M-Bus Decoder Library
 
-[![version](https://img.shields.io/badge/version-0.9.17-brightgreen.svg)](CHANGELOG.md)
+[![version](https://img.shields.io/badge/version-0.9.18-brightgreen.svg)](CHANGELOG.md)
 [![license](https://img.shields.io/badge/license-GPL--3.0-orange.svg)](LICENSE)
 
 
@@ -93,6 +93,83 @@ There are more records available but you have to delete the out comment in the l
 * **["scalar"]** contains the scaler of the value
 * **["value_raw"]** contains the raw value
 
+
+### Method: `decodeHeaderLong`
+
+Decodes the header of an M-Bus Long Frame telegram into a JsonObject (requires ArduinoJson library). Returns `true` on success, `false` on error.
+
+```c
+bool decodeHeaderLong(const uint8_t* buffer, size_t length, JsonObject& json);
+```
+
+- `const uint8_t* buffer`: Pointer to the raw M-Bus telegram (complete frame including start/stop bytes)
+- `size_t length`: Total length of the telegram
+- `JsonObject& json`: ArduinoJson object where the decoded header fields are written
+
+Usage example:
+```c
+MBusinoLib payload(254);
+
+StaticJsonDocument<512> headerDoc;
+JsonObject headerObj = headerDoc.to<JsonObject>();
+
+int packet_size = mbus_data[1] + 6;
+
+if (payload.decodeHeaderLong(mbus_data, packet_size, headerObj)) {
+    const char* meterId = headerObj["id"].as<const char*>();
+    const char* manufacturer = headerObj["manufacturer"].as<const char*>();
+    const char* medium = headerObj["medium"].as<const char*>();
+    int statusCode = headerObj["status"].as<int>();
+    int version = headerObj["version"].as<int>();
+    int accessCounter = headerObj["access_counter"].as<int>();
+
+    // Status details
+    bool battLow = headerObj["status_details"]["battery_low"].as<bool>();
+    bool tempErr = headerObj["status_details"]["temporary_error"].as<bool>();
+    bool permErr = headerObj["status_details"]["permanent_error"].as<bool>();
+}
+```
+
+Example JSON output (from a Cold water meter):
+
+```
+{
+  "len": 196,
+  "c_field": 8,
+  "a_field": 20,
+  "ci_field": 114,
+  "id": "29079172",
+  "manufacturer": "WZG",
+  "version": 3,
+  "medium_code": 22,
+  "medium": "Cold water",
+  "access_counter": 194,
+  "status": 0,
+  "status_details": {
+    "battery_low": false,
+    "permanent_error": false,
+    "temporary_error": false,
+    "app_status": "no_error"
+  },
+  "signature": 0
+}
+```
+
+### possible header fields
+
+* **["len"]** telegram length field
+* **["c_field"]** control field
+* **["a_field"]** address field
+* **["ci_field"]** control information field (0x72 or 0x76 = variable data with header)
+* **["id"]** meter identification number as HEX string
+* **["manufacturer"]** 3-letter manufacturer code
+* **["version"]** meter version/revision number
+* **["medium"]** medium name as text (e.g. "Electricity", "Gas", "Water")
+* **["medium_code"]** medium code as integer
+* **["access_counter"]** transmission counter
+* **["status"]** status byte as integer
+* **["status_details"]** nested object with decoded status bits: `battery_low`, `permanent_error`, `temporary_error`, `app_status`
+* **["signature"]** signature field
 
 ### Method: `getError`
 
