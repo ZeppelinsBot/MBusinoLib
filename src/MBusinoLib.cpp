@@ -1465,6 +1465,20 @@ const char * MBusinoLib::getStateClass(uint8_t code) {
 
 // ----------------------------------------------------------------------------
 
+const char * MBusinoLib::getHeaderDeviceClass(const char * fieldName) {
+  if (strcmp(fieldName, "battery_low") == 0) return "battery";
+  // All other header fields have no device_class in HA
+  return "";
+}
+
+const char * MBusinoLib::getHeaderStateClass(const char * fieldName) {
+  if (strcmp(fieldName, "access_counter") == 0) return "total_increasing";
+  // All other header fields have no state_class in HA
+  return "";
+}
+
+// ----------------------------------------------------------------------------
+
 int16_t MBusinoLib::_findDefinition(uint32_t vif) {
   
   for (uint8_t i=0; i<MBUS_VIF_DEF_NUM; i++) {
