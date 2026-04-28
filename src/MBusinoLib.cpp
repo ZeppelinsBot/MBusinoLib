@@ -1466,14 +1466,14 @@ const char * MBusinoLib::getStateClass(uint8_t code) {
 // ----------------------------------------------------------------------------
 
 const char * MBusinoLib::getHeaderDeviceClass(const char * fieldName) {
-  if (strcmp(fieldName, "battery_low") == 0) return "battery";
-  // All other header fields have no device_class in HA
+  // battery_low is boolean, not percentage — 'battery' device_class doesn't fit
+  // All header fields currently have no device_class in HA
   return "";
 }
 
 const char * MBusinoLib::getHeaderStateClass(const char * fieldName) {
-  if (strcmp(fieldName, "access_counter") == 0) return "total_increasing";
-  // All other header fields have no state_class in HA
+  // access_counter is 1 byte (0-255), wraps around — 'total_increasing' doesn't fit
+  // All header fields currently have no state_class in HA
   return "";
 }
 
