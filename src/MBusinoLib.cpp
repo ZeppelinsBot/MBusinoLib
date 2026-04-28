@@ -1465,20 +1465,6 @@ const char * MBusinoLib::getStateClass(uint8_t code) {
 
 // ----------------------------------------------------------------------------
 
-const char * MBusinoLib::getHeaderDeviceClass(const char * fieldName) {
-  // battery_low is boolean, not percentage — 'battery' device_class doesn't fit
-  // All header fields currently have no device_class in HA
-  return "";
-}
-
-const char * MBusinoLib::getHeaderStateClass(const char * fieldName) {
-  // access_counter is 1 byte (0-255), wraps around — 'total_increasing' doesn't fit
-  // All header fields currently have no state_class in HA
-  return "";
-}
-
-// ----------------------------------------------------------------------------
-
 int16_t MBusinoLib::_findDefinition(uint32_t vif) {
   
   for (uint8_t i=0; i<MBUS_VIF_DEF_NUM; i++) {
